@@ -206,10 +206,12 @@ public class MyLinkedList<T> implements List<T> {
     public int indexOf(final Object o) {
         // BEGIN (write your solution here)
         final ListIterator<T> iterator = this.listIterator();
+
         while(iterator.hasNext()) {
+            int index = iterator.nextIndex();
             T element = iterator.next();
             if(element.equals(o)) {
-                return iterator.nextIndex();
+                return index;
             }
         }
         return -1;
@@ -227,9 +229,8 @@ public class MyLinkedList<T> implements List<T> {
     }
 
     @Override
-    public T set(final int index, final T element) {
+    public T set(final int index, final T element) throws IndexOutOfBoundsException{
         // BEGIN (write your solution here)
-        final ListIterator<T> iterator = this.listIterator();
         Item<T> item = getItemByIndex(index);
         T old = item.element;
         item.element = element;
@@ -238,7 +239,9 @@ public class MyLinkedList<T> implements List<T> {
     }
 
     @Override
-    public T get(final int index) {
+    public T get(final int index) throws IndexOutOfBoundsException {
+        if(this.size() <= index || index < 0)
+            throw new IndexOutOfBoundsException();
         // BEGIN (write your solution here)
         final ListIterator<T> iterator = this.listIterator();
         while(iterator.hasNext()) {
@@ -252,8 +255,14 @@ public class MyLinkedList<T> implements List<T> {
         // END
     }
 
-    private Item<T> getItemByIndex(final int index) {
-        // BEGIN (write your solution here) An auxiliary method for searching for node by index.
+    private Item<T> getItemByIndex(final int index) throws IndexOutOfBoundsException{
+        // BEGIN (write your solution here) An auxiliary method for searching for node by nextINdex.
+        if(index == 0) {
+            return this.firstInList;
+        }
+        if(this.size() <= index || index < 0) {
+            throw new IndexOutOfBoundsException();
+        }
         Item<T> current = this.firstInList;
 
        for(int i=0;i<index;i++) {
@@ -269,19 +278,19 @@ public class MyLinkedList<T> implements List<T> {
 
         private Item<T> lastReturnedItemFromIterator;
 
-        private int index;
+        private int nextINdex;
 
-        ElementsIterator(final int index) {
+        ElementsIterator(final int nextINdex) {
             // BEGIN (write your solution here)
-            this.index = index;
-            this.currentItemInIterator = MyLinkedList.this.getItemByIndex(index);
+            this.nextINdex = nextINdex;
+            this.currentItemInIterator = (nextINdex == size) ? null : getItemByIndex(nextINdex);
             // END
         }
 
         @Override
         public boolean hasNext() {
             // BEGIN (write your solution here)
-            return MyLinkedList.this.size() > index;
+            return MyLinkedList.this.size() > nextINdex;
             // END
         }
 
@@ -289,9 +298,9 @@ public class MyLinkedList<T> implements List<T> {
         public T next() {
             // BEGIN (write your solution here)
             if(!hasNext()) throw new NoSuchElementException();
-            index++;
+            nextINdex++;
             lastReturnedItemFromIterator = currentItemInIterator;
-            currentItemInIterator = lastReturnedItemFromIterator.getNextItem();
+            currentItemInIterator = currentItemInIterator.getNextItem();
             return lastReturnedItemFromIterator.element;
             // END
         }
@@ -306,7 +315,7 @@ public class MyLinkedList<T> implements List<T> {
         @Override
         public boolean hasPrevious() {
             // BEGIN (write your solution here)
-            return index > 0;
+            return nextINdex > 0;
             // END
         }
 
@@ -314,9 +323,8 @@ public class MyLinkedList<T> implements List<T> {
         public T previous() {
             // BEGIN (write your solution here)
             if(!hasPrevious()) throw new NoSuchElementException();
-            index--;
-            this.currentItemInIterator = currentItemInIterator.getPrevItem();
-            this.lastReturnedItemFromIterator = this.currentItemInIterator;
+            nextINdex--;
+            lastReturnedItemFromIterator = currentItemInIterator = (currentItemInIterator == null) ? lastInList : currentItemInIterator.prevItem;
             return this.lastReturnedItemFromIterator.element;
             // END
         }
@@ -330,20 +338,20 @@ public class MyLinkedList<T> implements List<T> {
         public void set(final T element) {
             // BEGIN (write your solution here)
             if(lastReturnedItemFromIterator == null) throw new IllegalStateException();
-            MyLinkedList.this.set(index, element);
+            lastReturnedItemFromIterator.element = element;
             // END
         }
 
         @Override
         public int previousIndex(){
             // BEGIN (write your solution here)
-            return index == 0 ? -1 : index-1;
+            return nextINdex == 0 ? -1 : nextINdex -1;
             // END
         }
         @Override
         public int nextIndex() {
             // BEGIN (write your solution here)
-            return index;
+            return nextINdex;
             // END
         }
 
@@ -353,7 +361,7 @@ public class MyLinkedList<T> implements List<T> {
             // BEGIN (write your solution here)
             if(lastReturnedItemFromIterator == null) throw new IllegalStateException();
             MyLinkedList.this.remove(lastReturnedItemFromIterator);
-            index--;
+            nextINdex--;
             lastReturnedItemFromIterator=null;
             // END
         }
