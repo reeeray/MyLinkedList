@@ -73,22 +73,14 @@ public class MyLinkedList<T> implements List<T> {
     @Override
     public boolean add(final T newElement) {
         // BEGIN (write your solution here)
-        final Item<T> element;
-        if(this.firstInList == null) {
-            element = new Item(newElement, null, null);
-            this.firstInList = element;
-        }else if (this.firstInList.equals(this.lastInList)) {
-            element = new Item(newElement, this.firstInList, null);
-            this.firstInList.nextItem = element;
-        }else {
-            element = new Item(newElement, this.lastInList, null);
-            this.lastInList.nextItem = element;
-            this.lastInList = element;
+        final Item<T> element = lastInList;
+        final Item<T> newItem = new Item<>(newElement, element, null);
+        lastInList = newItem;
+        if(element == null) {
+            firstInList = newItem;
+        } else {
+            element.nextItem = newItem;
         }
-        this.lastInList = element;
-
-
-        this.lastInList.nextItem = element;
         this.size++;
         return true;
         // END
@@ -282,15 +274,15 @@ public class MyLinkedList<T> implements List<T> {
 
         ElementsIterator(final int nextINdex) {
             // BEGIN (write your solution here)
-            this.nextINdex = nextINdex;
             this.currentItemInIterator = (nextINdex == size) ? null : getItemByIndex(nextINdex);
+            this.nextINdex = nextINdex;
             // END
         }
 
         @Override
         public boolean hasNext() {
             // BEGIN (write your solution here)
-            return MyLinkedList.this.size() > nextINdex;
+            return nextINdex < size;
             // END
         }
 
@@ -304,13 +296,6 @@ public class MyLinkedList<T> implements List<T> {
             return lastReturnedItemFromIterator.element;
             // END
         }
-
-        public Item<T> nextElement() {
-            // BEGIN (write your solution here)
-            return lastReturnedItemFromIterator;
-            // END
-        }
-
 
         @Override
         public boolean hasPrevious() {
@@ -345,7 +330,7 @@ public class MyLinkedList<T> implements List<T> {
         @Override
         public int previousIndex(){
             // BEGIN (write your solution here)
-            return nextINdex == 0 ? -1 : nextINdex -1;
+            return nextINdex -1;
             // END
         }
         @Override

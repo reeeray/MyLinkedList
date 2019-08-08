@@ -370,7 +370,7 @@ public class LinkedListTest {
         testInstance.add("a");
         testInstance.add("a");
 
-        final ListIterator iter = testInstance.listIterator(2);
+        final ListIterator iter = testInstance.listIterator(3);
         iter.previous();
         iter.next();
         iter.previous();
